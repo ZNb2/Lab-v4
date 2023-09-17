@@ -229,6 +229,7 @@ func main() {
 					
 					fmt.Printf("Se inscribieron %d cupos de servidor %s\n", llaves_pedidas, subcadenas[0])
 					if num_cola == 4{
+						num_cola = 0
 						forever <- true
 					}
 				}
