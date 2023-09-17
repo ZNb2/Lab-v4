@@ -213,7 +213,7 @@ func main() {
 			//wg4.Add(1)
 		
 			go func() {
-				defer wg4.Done()
+				//defer wg4.Done()
 				for msg := range msgs {
 					fmt.Printf("Received Message: %s\n", msg.Body)
 					subcadenas := strings.Split(string(msg.Body), "-")
