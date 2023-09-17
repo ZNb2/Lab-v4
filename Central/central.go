@@ -21,6 +21,7 @@ func ConexionGRPC2(keys int, servidor string){
 	
 	//Uno de estos debe cambiar quizas por "regional:50052" ya que estara en la misma VM que el central
 	//host :="localhost"
+	num_cola++
 	var puerto, nombre, host string
 	
 	if servidor == "America"{
@@ -70,7 +71,7 @@ func ConexionGRPC(mensaje string, servidor string , wg *sync.WaitGroup){
 	//Uno de estos debe cambiar quizas por "regional:50052" ya que estara en la misma VM que el central
 	//host :="localhost"
 	var puerto, nombre, host string
-	num_cola++
+	//num_cola++
 	
 	if servidor == "America"{
 		host ="dist105.inf.santiago.usm.cl"
@@ -227,10 +228,9 @@ func main() {
 					go ConexionGRPC2(llaves_pedidas,subcadenas[0])
 					
 					fmt.Printf("Se inscribieron %d cupos de servidor %s\n", llaves_pedidas, subcadenas[0])
-					
-
-					
-					forever <- true
+					if num_cola == 4{
+						forever <- true
+					}
 				}
 				//time.Sleep(5 * time.Second)
 				
