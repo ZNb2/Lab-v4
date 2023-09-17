@@ -204,21 +204,6 @@ func main() {
 		panic(err)
 	}
 	defer channel.Close()
-
-	// declaring consumer with its properties over channel opened
-	msgs, err := channel.Consume(
-		"testing", // queue
-		"",        // consumer
-		true,      // auto ack
-		false,     // exclusive
-		false,     // no local
-		false,     // no wait
-		nil,       //args
-	)
-	if err != nil {
-		panic(err)
-	}
-	// ...
 	
 	var llaves int
 	for {	
