@@ -62,6 +62,19 @@ func ConexionGRPC2(keys int, servidor string){
 		log.Printf("Response from server "+nombre+": "+"%s", response.Response)
 		break
 	}
+	
+	var wg4 sync.WaitGroup
+	wg4.Add(1)
+	go func() {
+		defer wg4.Done()
+
+		// Simula algún tipo de proceso
+		for num_cola != 4 {
+			i++
+		}
+	}()
+	wg4.Wait()
+	num_cola = 0
 }
 
 var num_cola,i int 
@@ -231,10 +244,6 @@ func main() {
 					
 					fmt.Printf("Se inscribieron %d cupos de servidor %s\n", llaves_pedidas, subcadenas[0])
 					
-					for num_cola != 4 {
-						i++
-					}
-					num_cola = 0
 					forever <- true
 				}
 				//time.Sleep(5 * time.Second)
