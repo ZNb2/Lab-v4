@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option go_package = "github.com/MetalDanyboy/Lab1";
+package protos;
+
+message Message {
+  string body = 1;
+}
+
+message NumberRequest{
+  int32 number = 1;
+}
+
+message NumberResponse{
+  string response = 1;
+}
+
+service ChatService {
+  rpc SayHello(Message) returns (Message) {}
+  rpc SendKeys(NumberRequest) returns (NumberResponse) {}
+}
