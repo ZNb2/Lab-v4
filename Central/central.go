@@ -21,7 +21,6 @@ func ConexionGRPC2(keys int, servidor string){
 	
 	//Uno de estos debe cambiar quizas por "regional:50052" ya que estara en la misma VM que el central
 	//host :="localhost"
-	num_cola++
 	var puerto, nombre, host string
 	
 	if servidor == "America"{
@@ -62,22 +61,58 @@ func ConexionGRPC2(keys int, servidor string){
 		log.Printf("Response from server "+nombre+": "+"%s", response.Response)
 		break
 	}
-	
-	var wg4 sync.WaitGroup
-	wg4.Add(1)
-	go func() {
-		//defer wg4.Done()
-
-		// Simula algún tipo de proceso
-		for num_cola != 4 {
-			i++
-		}
-	}()
-	wg4.Wait()
-	num_cola = 0
 }
 
 var num_cola,i int 
+
+func verificarCola(ch *amqp.Channel) {
+	q, err := ch.QueueDeclare(
+		"mi_cola", // Nombre de la cola
+		true,     // Durable
+		false,    // Eliminar cuando no se use
+		false,    // Exclusiva
+		false,    // No esperar confirmación
+		nil,      // Argumentos adicionales
+	)
+	if err != nil {
+		log.Fatalf("Error al declarar la cola: %s", err)
+	}
+
+	for {
+		// Obtener el número de mensajes en la cola
+		queueInfo, err := ch.QueueInspect(q.Name)
+		if err != nil {
+			log.Fatalf("Error al inspeccionar la cola: %s", err)
+		}
+
+		if queueInfo.Messages >= 4 {
+			for i := 0; i < 4; i++ {
+				msg, _, err := ch.Get(q.Name, false)
+				if err != nil {
+					log.Fatalf("Error al obtener el mensaje: %s", err)
+				}
+				fmt.Printf("Received Message: %s\n", msg.Body)
+				subcadenas := strings.Split(string(msg.Body), "-")
+					
+				llaves_pedidas,_:=strconv.Atoi(subcadenas[1])
+				if llaves_pedidas > llaves{
+					llaves_pedidas=llaves
+				}
+				if llaves != 0{
+					llaves-=llaves_pedidas
+				}
+
+				fmt.Printf("Mensaje asíncrono de servidor %s leído\n", subcadenas[0])
+				go ConexionGRPC2(llaves_pedidas,subcadenas[0])
+					
+				fmt.Printf("Se inscribieron %d cupos de servidor %s\n", llaves_pedidas, subcadenas[0])
+			}
+		}
+
+		time.Sleep(1 * time.Second) // Esperar 5 segundos antes de verificar de nuevo
+	}
+}
+
 
 func ConexionGRPC(mensaje string, servidor string , wg *sync.WaitGroup){
 	
@@ -215,43 +250,7 @@ func main() {
 			go ConexionGRPC("LLaves Disponibles","Oceania", &wg)
 			wg.Wait()
 		
-			
-			
-			
-
-			
-			//Mensaje Rabbit
-			forever := make(chan bool)
-			//var wg4 sync.WaitGroup
-			//wg4.Add(1)
-		
-			go func() {
-				//defer wg4.Done()
-				for msg := range msgs {
-					fmt.Printf("Received Message: %s\n", msg.Body)
-					subcadenas := strings.Split(string(msg.Body), "-")
-					
-					llaves_pedidas,_:=strconv.Atoi(subcadenas[1])
-					if llaves_pedidas > llaves{
-						llaves_pedidas=llaves
-					}
-					if llaves != 0{
-						llaves-=llaves_pedidas
-					}
-
-					fmt.Printf("Mensaje asíncrono de servidor %s leído\n", subcadenas[0])
-					go ConexionGRPC2(llaves_pedidas,subcadenas[0])
-					
-					fmt.Printf("Se inscribieron %d cupos de servidor %s\n", llaves_pedidas, subcadenas[0])
-					
-					forever <- true
-				}
-				//time.Sleep(5 * time.Second)
-				
-			}()
-			fmt.Println("Waiting for messages...")
-			<-forever
-			
+			verificarCola(channel)
 		}
 	
 	
