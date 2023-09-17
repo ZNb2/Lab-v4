@@ -1,15 +1,5 @@
 # Grupo27-Laboratorio-1
 
-# **Integrantes**
-
----
-
-- Nicolas Barrera 201951552-7
-
-- Daniel  Sepúlveda 201873065-3
-
-- Javier Maturana 201873604-k
-
 # **Instrucciones**
 
 ---
