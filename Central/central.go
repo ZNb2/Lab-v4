@@ -66,7 +66,7 @@ func ConexionGRPC2(keys int, servidor string){
 	var wg4 sync.WaitGroup
 	wg4.Add(1)
 	go func() {
-		defer wg4.Done()
+		//defer wg4.Done()
 
 		// Simula algún tipo de proceso
 		for num_cola != 4 {
