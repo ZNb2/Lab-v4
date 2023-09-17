@@ -64,7 +64,7 @@ func ConexionGRPC2(keys int, servidor string){
 	}
 }
 
-var num_cola int 
+var num_cola,i int 
 
 func ConexionGRPC(mensaje string, servidor string , wg *sync.WaitGroup){
 	
@@ -209,9 +209,11 @@ func main() {
 			
 			//Mensaje Rabbit
 			forever := make(chan bool)
-			//esperar := make(chan bool)
+			//var wg4 sync.WaitGroup
+			//wg4.Add(1)
 		
 			go func() {
+				defer wg4.Done()
 				for msg := range msgs {
 					fmt.Printf("Received Message: %s\n", msg.Body)
 					subcadenas := strings.Split(string(msg.Body), "-")
@@ -228,10 +230,12 @@ func main() {
 					go ConexionGRPC2(llaves_pedidas,subcadenas[0])
 					
 					fmt.Printf("Se inscribieron %d cupos de servidor %s\n", llaves_pedidas, subcadenas[0])
-					if num_cola == 4{
-						num_cola = 0
-						forever <- true
+					
+					for num_cola != 4 {
+						i++
 					}
+					num_cola = 0
+					forever <- true
 				}
 				//time.Sleep(5 * time.Second)
 				
