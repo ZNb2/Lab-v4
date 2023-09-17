@@ -63,7 +63,7 @@ func ConexionGRPC2(keys int, servidor string){
 	}
 }
 
-var num_cola,i int 
+var num_cola,i,llaves int 
 
 func verificarCola(ch *amqp.Channel) {
 	q, err := ch.QueueDeclare(
