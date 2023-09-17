@@ -208,7 +208,7 @@ func main() {
 			
 			//Mensaje Rabbit
 			forever := make(chan bool)
-			esperar := make(chan bool)
+			//esperar := make(chan bool)
 		
 			go func() {
 				for msg := range msgs {
@@ -228,10 +228,7 @@ func main() {
 					
 					fmt.Printf("Se inscribieron %d cupos de servidor %s\n", llaves_pedidas, subcadenas[0])
 					
-					if num_cola == 4{	
-						num_cola = 0
-						esperar <- true
-					}
+
 					
 					forever <- true
 				}
@@ -240,7 +237,7 @@ func main() {
 			}()
 			fmt.Println("Waiting for messages...")
 			<-forever
-			<-esperar
+			
 		}
 	
 	
