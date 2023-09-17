@@ -240,7 +240,9 @@ func main() {
 			}()
 			fmt.Println("Waiting for messages...")
 			<-forever
-		}<-esperar
+			<-esperar
+		}
+	
 	
 
 	
