@@ -208,6 +208,8 @@ func main() {
 			
 			//Mensaje Rabbit
 			forever := make(chan bool)
+			esperar := make(chan bool)
+		
 			go func() {
 				for msg := range msgs {
 					fmt.Printf("Received Message: %s\n", msg.Body)
@@ -223,25 +225,22 @@ func main() {
 
 					fmt.Printf("Mensaje asíncrono de servidor %s leído\n", subcadenas[0])
 					go ConexionGRPC2(llaves_pedidas,subcadenas[0])
-					//if contador == iterations+1{
-						//forever <- true
-					//}
+					
 					fmt.Printf("Se inscribieron %d cupos de servidor %s\n", llaves_pedidas, subcadenas[0])
-					if num_cola == 4{
-						forever <- true
+					
+					if num_cola == 4{	
 						num_cola = 0
+						esperar <- true
 					}
 					
-					
-					
+					forever <- true
 				}
 				//time.Sleep(5 * time.Second)
 				
 			}()
 			fmt.Println("Waiting for messages...")
 			<-forever
-		
-		}
+		}<-esperar
 	
 
 	
