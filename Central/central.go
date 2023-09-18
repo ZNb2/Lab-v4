@@ -203,7 +203,7 @@ func main() {
 
 					log.Printf("Mensaje asíncrono de servidor %s leído\n", subcadenas[0])
 					wg2.Add(1)
-					ConexionGRPC2(llaves_pedidas,subcadenas[0], &wg2)
+					go ConexionGRPC2(llaves_pedidas,subcadenas[0], &wg2)
 					num_cola++
 					log.Printf("Se inscribieron %d cupos de servidor %s\n", llaves_pedidas, subcadenas[0])
 					
