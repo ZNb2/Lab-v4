@@ -40,7 +40,7 @@ func Server_name(servidor string) (host string, nombre string, puerto string){
 	return
 }
 
-func ConexionGRPC2(keys int, servidor string){
+func ConexionGRPC2(keys int, servidor string, wg *sync.WaitGroup){
 	
 	host, nombre, puerto := Server_name (servidor)
 	log.Println("Connecting to server "+nombre+": "+host+":"+puerto+". . .")
@@ -61,9 +61,10 @@ func ConexionGRPC2(keys int, servidor string){
 			time.Sleep(10 * time.Second)
 			continue
 		}
-		//log.Printf("Response from server "+nombre+": "+"%s", response.Response)
+		//log.Printf("Response from server "+nombre+": "+"%s", response.Body)
 		break
 	}
+	defer wg.Done()
 }
 
 func ConexionGRPC(mensaje string, servidor string , wg *sync.WaitGroup){
@@ -179,14 +180,14 @@ func main() {
 			go ConexionGRPC("LLaves Disponibles","Europa", &wg)
 			wg.Add(1)
 			go ConexionGRPC("LLaves Disponibles","Oceania", &wg)
-			
+			wg.Wait()
 		
 			
 			
 			//Mensaje Rabbit
 			
 			var num_cola int
-			
+			var wg2 sync.WaitGroup
 			for msg := range msgs {
 				     
 					//fmt.Printf("Received Message: %s\n", msg.Body)
@@ -201,8 +202,8 @@ func main() {
 					}
 
 					log.Printf("Mensaje asíncrono de servidor %s leído\n", subcadenas[0])
-					
-					ConexionGRPC2(llaves_pedidas,subcadenas[0])
+					wg2.Add(1)
+					ConexionGRPC2(llaves_pedidas,subcadenas[0], &wg2)
 					num_cola++
 					log.Printf("Se inscribieron %d cupos de servidor %s\n", llaves_pedidas, subcadenas[0])
 					
@@ -210,8 +211,8 @@ func main() {
 						break
 					}	
 			}
-			wg.Wait()
-			time.Sleep(1 * time.Second)
+			wg2.Wait()
+			//time.Sleep(1 * time.Second)
 		}
 	defer log.Println("Closing Central. . .")
 }
