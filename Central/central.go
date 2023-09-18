@@ -40,7 +40,7 @@ func Server_name(servidor string) (host string, nombre string, puerto string){
 	return
 }
 
-func ConexionGRPC2(keys int, servidor string, wg *sync.WaitGroup){
+func ConexionGRPC2(keys int, servidor string){
 	
 	host, nombre, puerto := Server_name (servidor)
 	log.Println("Connecting to server "+nombre+": "+host+":"+puerto+". . .")
@@ -64,7 +64,6 @@ func ConexionGRPC2(keys int, servidor string, wg *sync.WaitGroup){
 		//log.Printf("Response from server "+nombre+": "+"%s", response.Body)
 		break
 	}
-	defer wg.Done()
 }
 
 func ConexionGRPC(mensaje string, servidor string , wg *sync.WaitGroup){
@@ -203,7 +202,7 @@ func main() {
 					}
 
 					log.Printf("Mensaje asíncrono de servidor %s leído\n", subcadenas[0])
-					ConexionGRPC2(llaves_pedidas,subcadenas[0], &wg2)
+					ConexionGRPC2(llaves_pedidas,subcadenas[0])
 					num_cola++
 					log.Printf("Se inscribieron %d cupos de servidor %s\n", llaves_pedidas, subcadenas[0])
 					
