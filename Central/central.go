@@ -186,8 +186,8 @@ func main() {
 			//Mensaje Rabbit
 			
 			var num_cola int
-			var wg2 sync.WaitGroup
-			wg2.Add(1)
+			//var wg2 sync.WaitGroup
+			//wg2.Add(1)
 			for msg := range msgs {
 				     
 					//fmt.Printf("Received Message: %s\n", msg.Body)
@@ -206,11 +206,11 @@ func main() {
 					num_cola++
 					log.Printf("Se inscribieron %d cupos de servidor %s\n", llaves_pedidas, subcadenas[0])
 					
-					if num_cola == 2{
+					if num_cola == 4{
 						break
 					}	
 			}
-			wg2.Wait()
+			//wg2.Wait()
 			//time.Sleep(1 * time.Second)
 		}
 	defer log.Println("Closing Central. . .")
