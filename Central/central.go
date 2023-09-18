@@ -179,7 +179,7 @@ func main() {
 			go ConexionGRPC("LLaves Disponibles","Europa", &wg)
 			wg.Add(1)
 			go ConexionGRPC("LLaves Disponibles","Oceania", &wg)
-			wg.Wait()
+			
 		
 			
 			
@@ -209,7 +209,8 @@ func main() {
 					if num_cola == 2{
 						break
 					}	
-			}		
+			}
+			wg.Wait()
 		}
 	defer log.Println("Closing Central. . .")
 }
