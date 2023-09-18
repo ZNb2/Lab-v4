@@ -211,6 +211,7 @@ func main() {
 					}	
 			}
 			wg.Wait()
+			time.Sleep(1 * time.Second)
 		}
 	defer log.Println("Closing Central. . .")
 }
