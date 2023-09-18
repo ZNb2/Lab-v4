@@ -119,8 +119,8 @@ func main() {
 
 
 	//...CONEXION RABBITMQ...
-	//addr := "dist106.inf.santiago.usm.cl"
-	addr :="localhost"
+	addr := "dist106.inf.santiago.usm.cl"
+	//addr :="localhost"
 	connection, err := amqp.Dial("amqp://guest:guest@"+addr+":5672/")
 	if err != nil {
 		panic(err)
