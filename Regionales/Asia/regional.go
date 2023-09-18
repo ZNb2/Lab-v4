@@ -15,6 +15,7 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 	"google.golang.org/grpc"
 )
+
 var server_name string
 var cant_registrados int
 var cant_llaves_pedidas int
@@ -47,10 +48,10 @@ func Pedir_LLaves(cant_inicial int, cant_pedidas int)(int){
 
 
 func (s *Server) SayHello(ctx context.Context, in *pb.Message) (*pb.Message, error) {
-	log.Printf("Receive message body from client: %s", in.Body)
+	log.Printf("Receive message: %s", in.Body)
 
 	// Enviamos un mensaje a RabbitMQ
-	time.Sleep(5 * time.Second)
+	//time.Sleep(5 * time.Second)
 	inMessage:=string(in.Body)
 	if inMessage == "LLaves Disponibles"{
 		llaves_pedidas:=Pedir_LLaves(cant_registrados,cant_llaves_pedidas)
@@ -66,7 +67,7 @@ func (s *Server) SayHello(ctx context.Context, in *pb.Message) (*pb.Message, err
 				 // Enviamos el cuerpo del mensaje gRPC a RabbitMQ
 			},
 		)
-		fmt.Println("Mande "+strconv.Itoa(llaves_pedidas)+" llaves")
+		log.Println("Mande "+strconv.Itoa(llaves_pedidas)+" llaves")
 		if err != nil {
 			log.Printf("Error al publicar en RabbitMQ: %s", err)
 		}
@@ -83,14 +84,19 @@ func(s *Server) SendKeys(ctx context.Context, in *pb.NumberRequest) (*pb.NumberR
 }
 
 func main() {
-	
+
+	server_name = "Asia"
+	puerto := ":50053"
+	//addr_Rabbit := "localhost"
+	addr_Rabbit := "dist106.inf.santiago.usm.cl"
+
 	rand.Seed(time.Now().UnixNano())
 	directorioActual, err := os.Getwd()
     if err != nil {
         fmt.Println("Error al obtener el directorio actual:", err)
         return
     }
-    content, err := os.ReadFile(directorioActual+"/Regionales/Asia/parametros_de_inicio.txt")
+    content, err := os.ReadFile(directorioActual+"/parametros_de_inicio.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -101,10 +107,6 @@ func main() {
 	}
 	cant_llaves_pedidas=0
 	
-	
-	server_name = "Asia"
-	//addr_Rabbit := "localhost"
-	addr_Rabbit := "dist106.inf.santiago.usm.cl"
 	connection, err := amqp.Dial("amqp://guest:guest@" + addr_Rabbit + ":5672/")
 	if err != nil {
 		panic(err)
@@ -131,7 +133,6 @@ func main() {
 		panic(err)
 	}
 
-	puerto := ":50053"
 	lis, err := net.Listen("tcp", puerto)
 	fmt.Printf("Escuchando %s\n", puerto)
 	if err != nil {
@@ -147,4 +148,5 @@ func main() {
 	}
 
 	fmt.Println("Queue status:", queue)
+
 }

@@ -17,146 +17,77 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+func Server_name(servidor string) (host string, nombre string, puerto string){
+	
+	//host = "localhost"
+	if servidor == "America"{
+		host = "dist105.inf.santiago.usm.cl"
+		puerto = "50052"
+		nombre = "America"
+	}else if servidor == "Asia"{
+		host = "dist106.inf.santiago.usm.cl"
+		puerto = "50053"
+		nombre = "Asia"
+	}else if servidor == "Europa"{
+		host = "dist107.inf.santiago.usm.cl"
+		puerto = "50054"
+		nombre = "Europa"
+	}else if servidor == "Oceania"{
+		host = "dist108.inf.santiago.usm.cl"
+		puerto = "50055"
+		nombre = "Oceania"
+	}
+	return
+}
+
 func ConexionGRPC2(keys int, servidor string){
 	
-	//Uno de estos debe cambiar quizas por "regional:50052" ya que estara en la misma VM que el central
-	//host :="localhost"
-	var puerto, nombre, host string
-	
-	if servidor == "America"{
-		host ="dist105.inf.santiago.usm.cl"
-		puerto ="50052"
-		nombre ="America"
-	}else if servidor == "Asia"{
-		host ="dist106.inf.santiago.usm.cl"
-		puerto ="50053"
-		nombre ="Asia"
-	}else if servidor == "Europa"{
-		host ="dist107.inf.santiago.usm.cl"
-		puerto ="50054"
-		nombre ="Europa"
-	}else if servidor == "Oceania"{
-		host ="dist108.inf.santiago.usm.cl"
-		puerto ="50055"
-		nombre ="Oceania"
-	}
+	host, nombre, puerto := Server_name (servidor)
 	log.Println("Connecting to server "+nombre+": "+host+":"+puerto+". . .")
 	conn, err := grpc.Dial(host+":"+puerto,grpc.WithTransportCredentials(insecure.NewCredentials()))	
 	if err != nil {
 		log.Fatalf("Failed to connect: %v", err)
 	}
-	fmt.Printf("Esperando\n")
+	//fmt.Printf("Esperando\n")
 	defer conn.Close()
 
 	c := pb.NewChatServiceClient(conn)
 	for {
 		log.Println("Sending message to server "+nombre+": "+strconv.Itoa(keys))
-		response, err := c.SendKeys(context.Background(), &pb.NumberRequest{Number: int32(keys)})
+		_, err := c.SendKeys(context.Background(), &pb.NumberRequest{Number: int32(keys)})
 		if err != nil {
 			log.Println("Server "+nombre+" not responding: ")
 			log.Println("Trying again in 10 seconds. . .")
 			time.Sleep(10 * time.Second)
 			continue
 		}
-		log.Printf("Response from server "+nombre+": "+"%s", response.Response)
+		//log.Printf("Response from server "+nombre+": "+"%s", response.Response)
 		break
 	}
 }
 
-var num_cola,i,llaves int 
-
-func verificarCola(ch *amqp.Channel) {
-	q, err := ch.QueueDeclare(
-		"mi_cola", // Nombre de la cola
-		true,     // Durable
-		false,    // Eliminar cuando no se use
-		false,    // Exclusiva
-		false,    // No esperar confirmación
-		nil,      // Argumentos adicionales
-	)
-	if err != nil {
-		log.Fatalf("Error al declarar la cola: %s", err)
-	}
-
-	for {
-		// Obtener el número de mensajes en la cola
-		queueInfo, err := ch.QueueInspect(q.Name)
-		if err != nil {
-			log.Fatalf("Error al inspeccionar la cola: %s", err)
-		}
-
-		if queueInfo.Messages >= 4 {
-			for i := 0; i < 4; i++ {
-				msg, _, err := ch.Get(q.Name, false)
-				if err != nil {
-					log.Fatalf("Error al obtener el mensaje: %s", err)
-				}
-				fmt.Printf("Received Message: %s\n", msg.Body)
-				subcadenas := strings.Split(string(msg.Body), "-")
-					
-				llaves_pedidas,_:=strconv.Atoi(subcadenas[1])
-				if llaves_pedidas > llaves{
-					llaves_pedidas=llaves
-				}
-				if llaves != 0{
-					llaves-=llaves_pedidas
-				}
-
-				fmt.Printf("Mensaje asíncrono de servidor %s leído\n", subcadenas[0])
-				go ConexionGRPC2(llaves_pedidas,subcadenas[0])
-					
-				fmt.Printf("Se inscribieron %d cupos de servidor %s\n", llaves_pedidas, subcadenas[0])
-			}
-		}
-
-		time.Sleep(1 * time.Second) // Esperar 5 segundos antes de verificar de nuevo
-	}
-}
-
-
 func ConexionGRPC(mensaje string, servidor string , wg *sync.WaitGroup){
 	
-	//Uno de estos debe cambiar quizas por "regional:50052" ya que estara en la misma VM que el central
-	//host :="localhost"
-	var puerto, nombre, host string
-	//num_cola++
-	
-	if servidor == "America"{
-		host ="dist105.inf.santiago.usm.cl"
-		puerto ="50052"
-		nombre ="America"
-	}else if servidor == "Asia"{
-		host ="dist106.inf.santiago.usm.cl"
-		puerto ="50053"
-		nombre ="Asia"
-	}else if servidor == "Europa"{
-		host="dist107.inf.santiago.usm.cl"
-		puerto ="50054"
-		nombre ="Europa"
-	}else if servidor == "Oceania"{
-		host="dist108.inf.santiago.usm.cl"
-		puerto ="50055"
-		nombre ="Oceania"
-	}
+	host, nombre, puerto := Server_name (servidor)
 	log.Println("Connecting to server "+nombre+": "+host+":"+puerto+". . .")
 	conn, err := grpc.Dial(host+":"+puerto,grpc.WithTransportCredentials(insecure.NewCredentials()))	
 	if err != nil {
 		log.Fatalf("Failed to connect: %v", err)
 	}
-	fmt.Printf("Esperando\n")
+	//fmt.Printf("Esperando\n")
 	defer conn.Close()
 
 	c := pb.NewChatServiceClient(conn)
 	for {
 		log.Println("Sending message to server "+nombre+": "+mensaje)
-		response, err := c.SayHello(context.Background(), &pb.Message{Body: mensaje})
+		_, err := c.SayHello(context.Background(), &pb.Message{Body: mensaje})
 		if err != nil {
 			log.Println("Server "+nombre+" not responding: ")
 			log.Println("Trying again in 10 seconds. . .")
 			time.Sleep(10 * time.Second)
 			continue
 		}
-		log.Printf("Response from server "+nombre+": "+"%s", response.Body)
+		//log.Printf("Response from server "+nombre+": "+"%s", response.Body)
 		break
 	}
 	defer wg.Done()
@@ -164,14 +95,14 @@ func ConexionGRPC(mensaje string, servidor string , wg *sync.WaitGroup){
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
-	log.Println("Starting Central. . .\n")
+	fmt.Println("Starting Central. . .")
 
 	directorioActual, err := os.Getwd()
     if err != nil {
         fmt.Println("Error al obtener el directorio actual:", err)
         return
     }
-    content, err := os.ReadFile(directorioActual+"/Central/parametros_de_inicio.txt")
+    content, err := os.ReadFile(directorioActual+"/parametros_de_inicio.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -188,8 +119,8 @@ func main() {
 
 
 	//...CONEXION RABBITMQ...
-	addr := "dist106.inf.santiago.usm.cl"
-	//addr :="localhost"
+	//addr := "dist106.inf.santiago.usm.cl"
+	addr :="localhost"
 	connection, err := amqp.Dial("amqp://guest:guest@"+addr+":5672/")
 	if err != nil {
 		panic(err)
@@ -204,6 +135,21 @@ func main() {
 		panic(err)
 	}
 	defer channel.Close()
+
+	// declaring consumer with its properties over channel opened
+	msgs, err := channel.Consume(
+		"testing", // queue
+		"",        // consumer
+		true,      // auto ack
+		false,     // exclusive
+		false,     // no local
+		false,     // no wait
+		nil,       //args
+	)
+	if err != nil {
+		panic(err)
+	}
+	// ...
 	
 	var llaves int
 	for {	
@@ -221,7 +167,7 @@ func main() {
 			}
 			llaves= rand.Intn(max-min) + min
 
-			log.Printf("Llaves disponibles: %d\n\n", llaves)
+			log.Printf("Llaves disponibles: %d", llaves)
 			
 			
 			var wg sync.WaitGroup
@@ -235,19 +181,41 @@ func main() {
 			go ConexionGRPC("LLaves Disponibles","Oceania", &wg)
 			wg.Wait()
 		
-			verificarCola(channel)
+			
+			
+			//Mensaje Rabbit
+			
+			var num_cola int
+			
+			for msg := range msgs {
+				     
+					//fmt.Printf("Received Message: %s\n", msg.Body)
+					subcadenas := strings.Split(string(msg.Body), "-")
+					
+					llaves_pedidas,_:=strconv.Atoi(subcadenas[1])
+					if llaves_pedidas > llaves{
+						llaves_pedidas=llaves
+					}
+					if llaves != 0{
+						llaves-=llaves_pedidas
+					}
+
+					log.Printf("Mensaje asíncrono de servidor %s leído\n", subcadenas[0])
+					
+					go ConexionGRPC2(llaves_pedidas,subcadenas[0])
+					num_cola++
+					log.Printf("Se inscribieron %d cupos de servidor %s\n", llaves_pedidas, subcadenas[0])
+					
+					if num_cola == 2{
+						break
+					}	
+			}		
 		}
-	
-	
-
-	
-	defer log.Println("Closing Central. . .\n")
-	//...
-
-	/*wg.Add(1)
-	go ConexionGRPC("200","Asia", &wg)
-
-	wg.Wait()
-	log.Println("\nFinishing Central. . .")*/
-
+	defer log.Println("Closing Central. . .")
 }
+
+
+
+
+
+
