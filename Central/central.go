@@ -187,7 +187,7 @@ func main() {
 			
 			var num_cola int
 			var wg2 sync.WaitGroup
-			wg2.Add(4)
+			wg2.Add(1)
 			for msg := range msgs {
 				     
 					//fmt.Printf("Received Message: %s\n", msg.Body)
