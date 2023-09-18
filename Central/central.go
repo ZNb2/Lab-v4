@@ -102,7 +102,7 @@ func main() {
         fmt.Println("Error al obtener el directorio actual:", err)
         return
     }
-    content, err := os.ReadFile(directorioActual+"/parametros_de_inicio.txt")
+    content, err := os.ReadFile(directorioActual+"/Central/parametros_de_inicio.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
